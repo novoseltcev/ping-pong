@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="570" prefWidth="500" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ping_pong.controller.GameController">
+
+    <right>
+        <StackPane prefHeight="1000" prefWidth="15" style="-fx-background-color: #DCD3FF;" BorderPane.alignment="CENTER" />
+    </right>
+    <left>
+        <StackPane prefHeight="600.0" prefWidth="15" style="-fx-background-color: #DCD3FF;" BorderPane.alignment="CENTER" />
+    </left>
+    <top>
+        <StackPane prefHeight="15" prefWidth="500" style="-fx-background-color: #DCD3FF;" BorderPane.alignment="CENTER" />
+    </top>
+    <bottom>
+        <StackPane prefHeight="15" prefWidth="500" style="-fx-background-color: #DCD3FF;" BorderPane.alignment="CENTER" />
+    </bottom>
+    <center>
+        <VBox prefHeight="570">
+            <Pane prefHeight="70.0" prefWidth="470" style="-fx-background-color: #DCD3FF;">
+                <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="472.0">
+                    <VBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="79.0">
+                        <Label fx:id="userLabel" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" />
+                        <Label alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" text="Bot: " textAlignment="RIGHT" />
+                  <opaqueInsets>
+                     <Insets bottom="10.0" />
+                  </opaqueInsets>
+                  <padding>
+                     <Insets bottom="5.0" />
+                  </padding>
+                    </VBox>
+                    <VBox alignment="BOTTOM_LEFT" prefHeight="100.0" prefWidth="34.0">
+                        <Label fx:id="userScoreLabel" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" text="0" />
+                        <Label fx:id="botScoreLabel" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" text="0" />
+                  <opaqueInsets>
+                     <Insets bottom="10.0" />
+                  </opaqueInsets>
+                  <padding>
+                     <Insets bottom="5.0" />
+                  </padding>
+                    </VBox>
+                </HBox>
+            </Pane>
+            <Pane fx:id="botLayer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35" prefWidth="470" />
+            <Pane fx:id="ballLayer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400" prefWidth="470" />
+            <Pane fx:id="userLayer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35" prefWidth="470" />
+        </VBox>
+    </center>
+
+</BorderPane>
