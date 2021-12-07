@@ -1,30 +1,43 @@
 package com.ping_pong.controller;
 
 
+import com.jgame.interfaces.IGameEngine;
 import com.ping_pong.model.Settings;
+import javafx.fxml.FXML;
 
 public class PauseController extends Controller{
-
+    IGameEngine game;
     @Override
-    protected void initialize() {}
+    protected void initialize() {
+        super.initialize();
+    }
 
-    public void resume() throws Exception {
+
+
+    @FXML
+    protected void resume() {
         app.prevScene();
         app.setBoundary(
                 Settings.Stage.width, Settings.Stage.height,
-                Settings.Stage.width, Settings.Stage.height);
-        ((GameController) app.getCurrentController()).resume();
+                Settings.Stage.width, Settings.Stage.height
+        );
+        game = (IGameEngine) app.getCurrentController();
+        game.resume();
     }
 
-    public void restart() throws Exception {
+    @FXML
+    protected void restart() {
         app.prevScene();
         app.setBoundary(
                 Settings.Stage.width, Settings.Stage.height,
-                Settings.Stage.width, Settings.Stage.height);
-        ((GameController) app.getCurrentController()).restart();
+                Settings.Stage.width, Settings.Stage.height
+        );
+        game = (IGameEngine) app.getCurrentController();
+        game.restart();
     }
 
-    public void exit() {
+    @FXML
+    protected void exit() {
         app.getStage().close();
         Thread.currentThread().interrupt();
     }
