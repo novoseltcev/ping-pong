@@ -2,7 +2,6 @@ package com.jgame.structs;
 
 public class Acceleration extends Vector2D {
     private final double GRAVITY = 9.8;
-    private double maxAcceleration;
 
 
     public Acceleration(double x, double y) {
@@ -14,25 +13,24 @@ public class Acceleration extends Vector2D {
     }
 
     @Override
-    protected void limit() {
-        limit(maxAcceleration);
-    }
+    protected void limit() {}
 
-    public void setMaxAcceleration(double maxAcceleration) {
-        this.maxAcceleration = maxAcceleration;
-    }
-
-    public double getMaxAcceleration() {
-        return maxAcceleration;
-    }
-
-
-    public void brake(Velocity velocity, double brakeCoefficient) {
+    public void brake(Velocity velocity) {
         Angle velocityAngle = velocity.getAngle();
         velocityAngle.invert();
 
-        Acceleration tmp = new Acceleration(velocityAngle, brakeCoefficient * GRAVITY);
-        normalize();
-        multiply(tmp.magnitude());
+        Acceleration tmp = new Acceleration(velocityAngle, Math.pow(Math.abs(velocity.getX()), 0.43) / 5);
+        setX(tmp.x);
+        setY(tmp.y);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Acceleration{");
+        sb.append("x=").append(x);
+        sb.append(", y=").append(y);
+        sb.append(", angle=").append(getAngle().getDegree());
+        sb.append('}');
+        return sb.toString();
     }
 }

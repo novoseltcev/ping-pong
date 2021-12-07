@@ -10,6 +10,7 @@ public class Velocity extends Vector2D {
 
     public Velocity(Angle angle, double speed) {
         super(angle, speed);
+        maxSpeed = speed;
     }
 
     @Override
@@ -23,5 +24,15 @@ public class Velocity extends Vector2D {
 
     public double getMaxSpeed() {
         return maxSpeed;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Velocity{");
+        sb.append("x=").append(x);
+        sb.append(", y=").append(y);
+        sb.append(", maxSpeed=").append(maxSpeed);
+        sb.append('}');
+        return sb.toString();
     }
 }

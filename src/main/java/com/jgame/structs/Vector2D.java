@@ -2,17 +2,17 @@ package com.jgame.structs;
 
 
 public abstract class Vector2D {
-    private double x;
-    private double y;
+    double x;
+    double y;
 
     Vector2D(double x, double y) {
-        setX(x);
-        setY(y);
+        this.x = x;
+        this.y = y;
     }
 
     Vector2D(Angle angle, double length) {
-        setX(angle.getX());
-        setY(angle.getY());
+        this.x = angle.getX();
+        this.y = angle.getY();
         multiply(length);
     }
 
@@ -49,13 +49,13 @@ public abstract class Vector2D {
     }
 
     public void multiply(double lambda) {
-        setX(x * lambda);
-        setY(y * lambda);
+        x *= lambda;
+        y *= lambda;
      }
 
     public void div(double lambda) {
-        setX(x / lambda);
-        setY(y / lambda);
+        x /= lambda;
+        y /= lambda;
     }
 
     public void normalize() {
@@ -73,15 +73,15 @@ public abstract class Vector2D {
 
     @Override
     public String toString() {
-        return '\n' + getClass().getSimpleName() + " {" +
-                " \n\tx=" + Math.round(x * 10000) / 10000 +
-                ",\n\ty=" + Math.round(y * 10000) / 10000 +
-                "\n}";
+        return  getClass().getSimpleName() + " {" +
+                " x=" + Math.round(x * 10000) / 10000 +
+                ", y=" + Math.round(y * 10000) / 10000 +
+                "}";
     }
 
     public void cloneFrom(Vector2D vector) {
-        setX(vector.getX());
-        setY(vector.getY());
+        x = vector.getX();
+        y = vector.getY();
     }
 
 

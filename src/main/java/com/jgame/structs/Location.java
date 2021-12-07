@@ -1,9 +1,9 @@
 package com.jgame.structs;
 
 public class Location extends Vector2D {
-    private Vector2D leftTopCorner = new Location(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
-    private Vector2D rightBottomCorner = new Location(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-    private Vector2D baseReferenceFrameOffset = new Direction(0, 0);
+    private Vector2D leftTopCorner = new Direction(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+    private Vector2D rightBottomCorner = new Direction(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+    private Direction baseReferenceFrameOffset = new Direction(0, 0);
 
 
     public Location(double x, double y) {
@@ -23,26 +23,29 @@ public class Location extends Vector2D {
     public void setBaseReferenceFrameOffset(Direction baseReferenceFrameOffset) {
         this.baseReferenceFrameOffset = baseReferenceFrameOffset;
     }
+    public Direction getBaseReferenceFrameOffset() {
+        return this.baseReferenceFrameOffset;
+    }
 
     @Override
     protected void limit() {
         if (getX() < leftTopCorner.getX()) {
-            setX(leftTopCorner.getX());
+            x = leftTopCorner.getX();
         } else if (getX() > rightBottomCorner.getX()) {
-            setX(rightBottomCorner.getX());
+            x = rightBottomCorner.getX();
         }
 
         if (getY() < leftTopCorner.getY()) {
-            setY(leftTopCorner.getY());
+            y = leftTopCorner.getY();
         } else if (getY() > rightBottomCorner.getY()) {
-            setY(rightBottomCorner.getY());
+            y = rightBottomCorner.getY();
         }
     }
 
-    public Direction getDirectionTo(Location other) {
+    public Direction getDirectionTo(Vector2D other) {
         Vector2D referenceFrameOffset = new Direction(
-                other.baseReferenceFrameOffset.getX() - baseReferenceFrameOffset.getX(),
-                other.baseReferenceFrameOffset.getY() - baseReferenceFrameOffset.getY()
+                ((Location)other).baseReferenceFrameOffset.getX() - baseReferenceFrameOffset.getX(),
+                ((Location)other).baseReferenceFrameOffset.getY() - baseReferenceFrameOffset.getY()
         );
         Direction locationOffset = new Direction(
                 other.getX() - getX(),
@@ -52,7 +55,7 @@ public class Location extends Vector2D {
         return locationOffset;
     }
 
-    public double getDistanceTo(Location other) {
+    public double getDistanceTo(Vector2D other) {
         return getDirectionTo(other).getDistance();
     }
 }
