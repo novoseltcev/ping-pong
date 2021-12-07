@@ -55,14 +55,11 @@ public abstract class CustomApp extends Application {
         this.borders = tmpBorders;
     }
 
-    public Stage getStage() {
-        return stage; }
+    public Stage getStage() { return stage; }
 
-    public Scene getCurrentScene() {
-        return scenes.get(scenes.size() - 1); }
+    public Scene getCurrentScene() { return scenes.get(scenes.size() - 1); }
 
-    public Controller getCurrentController() {
-        return controllers.get(controllers.size() - 1); }
+    public Controller getCurrentController() { return controllers.get(controllers.size() - 1); }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -70,11 +67,16 @@ public abstract class CustomApp extends Application {
         this.stage.setTitle(title);
         if (borders.length == 2) {
             setBoundary(borders[0], 1920, borders[1], 1080);
-        } else if (borders.length == 4) {
+        }
+        else if (borders.length == 4) {
             setBoundary(borders[0], borders[1], borders[2], borders[3]);
         }
-
         nextScene(startFxmlFilename);
+        show();
+    }
+
+    private void reloadScene() {
+        stage.setScene(getCurrentScene());
     }
 
     public void nextScene(String fxmlFilename) throws Exception {
@@ -84,24 +86,18 @@ public abstract class CustomApp extends Application {
         System.out.println(fxmlLoader.getLocation());
         Scene scene = new Scene(fxmlLoader.load());
         Controller controller = fxmlLoader.getController();
-        controller.setApp(this);
-
         scenes.add(scene);
         controllers.add(controller);
 
-        System.out.println("1: " + stage.getScene());
-        stage.setScene(scene);
-        System.out.println("2: " + stage.getScene());
-        stage.show();
+        controller.setApp(this);
+        reloadScene();
     }
 
     public void prevScene() {
         int size = this.scenes.size() - 1;
-
         scenes.remove(size);
         controllers.remove(size);
-
-        stage.setScene(getCurrentScene());
+        reloadScene();
     }
 
     public void setBoundary(int minWidth, int minHeight, int maxWidth,  int maxHeight) {

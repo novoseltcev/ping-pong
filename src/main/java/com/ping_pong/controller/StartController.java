@@ -9,9 +9,6 @@ public class StartController extends Controller {
     @FXML
     protected TextField usernameField;
 
-    @Override
-    protected void initialize() {}
-
     public void confirmUsername() throws Exception {
         String text = usernameField.getText();
         if (!text.isEmpty()) {

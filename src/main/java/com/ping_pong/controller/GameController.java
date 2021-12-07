@@ -1,5 +1,7 @@
 package com.ping_pong.controller;
 
+import com.jgame.Sprite;
+import com.jgame.interfaces.IGameEngine;
 import com.ping_pong.model.Ball;
 import com.ping_pong.model.Bot;
 import com.ping_pong.model.Settings;
@@ -12,10 +14,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
-import static java.lang.Thread.sleep;
+import java.util.*;
 
 
-public class GameController extends Controller {
+public class GameController extends Controller implements IGameEngine {
 
     public Pane botLayer;
     public Pane userLayer;
@@ -28,67 +30,98 @@ public class GameController extends Controller {
     protected Ball ball;
     protected User user;
     protected Bot bot;
+    protected HashMap<String, Sprite> sprites;
+
+    protected ThreadGroup gameThreadGroup;
+    protected Timeline viewUpdater;
+    protected Timeline threadInterrupter;
 
     @Override
-    protected void initialize() throws Exception {
+    protected void initialize() {
+        super.initialize();
         userLabel.setText(
                 app.load("username") + ": "
         );
         ball = new Ball(ballLayer);
         user = new User(userLayer, ball);
         bot = new Bot(botLayer, ball);
-        System.out.println("INIT");
-        resume();
+
+        sprites = new HashMap<>() {{
+            put("ball", ball);
+            put("user", user);
+            put("bot",  bot);
+        }};
     }
 
-    public void restart() throws InterruptedException {
-        ball.respawn();
-        user.respawn();
-        bot.respawn();
-        resume();
+    @Override
+    protected void run() {
+        super.run();
+        startThreads();
+        startUpdater();
+        startInterrupter();
     }
 
-    public void resume() throws InterruptedException {
-        System.out.println("RESUME");
-        sleep(1000);
-        ThreadGroup gameGroup = new ThreadGroup("game");
+    @Override
+    public void pause() {}
 
-        Thread userThread = new Thread(gameGroup, user, "user");
-        Thread enemyThread = new Thread(gameGroup, bot, "bot");
+    @Override
+    public void resume() {
+        activateSpites(sprites.values());
+        run();
+    }
 
-        Thread ballThread = new Thread(gameGroup, ball, "ball");
+    @Override
+    public void stop() {
+        deactivateSprites(sprites.values());
+        viewUpdater.stop();
+        gameThreadGroup.interrupt();
+    }
 
+    @Override
+    public void restart() {
+        respawnSprites(sprites.values());
+        run();
+    }
+
+    private void startThreads() {
+        gameThreadGroup = new ThreadGroup("game");
+
+
+        Thread botThread  = new Thread(gameThreadGroup, bot,  "bot");
+        Thread userThread = new Thread(gameThreadGroup, user, "user");
+        Thread ballThread = new Thread(gameThreadGroup, ball, "ball");
+
+        botThread.start();
         userThread.start();
-        enemyThread.start();
         ballThread.start();
+    }
 
-        Timeline timeline =
+    private void startUpdater() {
+        viewUpdater =
                 new Timeline(new KeyFrame(Duration.millis(Settings.milPerFrame), e -> {
-                    ball.updateView();
-                    bot.updateView();
-                    user.updateView();
+                    updateSprites(sprites.values());
                     botScoreLabel.setText(String.valueOf(user.getScore()));
                     userScoreLabel.setText(String.valueOf(bot.getScore()));
                 }));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
+        viewUpdater.setCycleCount(Animation.INDEFINITE);
+        viewUpdater.play();
+    }
 
-        Timeline timelineDop =
+    private void startInterrupter() {
+        threadInterrupter =
                 new Timeline(new KeyFrame(Duration.millis(Settings.milPerFrame), e -> {
-                    if (user.enteredKey == KeyCode.ESCAPE && gameGroup.activeCount() > 0) {
+                    if (user.enteredKey == KeyCode.ESCAPE && gameThreadGroup.activeCount() > 0) {
                         user.enteredKey = null;
-                        System.out.println("GOTO pause");
+                        stop();
                         try {
-                            gameGroup.interrupt();
-                            timeline.stop();
                             app.nextScene("pause-view.fxml");
                             app.setBoundary(250, 250, 250, 250);
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
+                        } catch (Exception ex) {
+                            System.out.println(ex);
                         }
                     }
                 }));
-        timelineDop.setCycleCount(Animation.INDEFINITE);
-        timelineDop.play();
+        threadInterrupter.setCycleCount(Animation.INDEFINITE);
+        threadInterrupter.play();
     }
 }

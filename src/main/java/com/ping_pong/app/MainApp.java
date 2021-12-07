@@ -1,8 +1,6 @@
 package com.ping_pong.app;
 
 
-import com.ping_pong.model.Settings;
-
 public class MainApp extends CustomApp {
     public MainApp() {
         super("start-view.fxml", "Tennis",
