@@ -20,7 +20,7 @@ public abstract class Settings {
         public static int height = 600;
     }
 
-    public static class User {
+    public static class Entity {
         public static double height = 20;
         public static double width  = 100;
 
@@ -31,10 +31,9 @@ public abstract class Settings {
     }
 
     public static class Ball {
-        public static double height = 20;
-        public static double width  = 20;
+        public static double radius = 20;
 
-        public static double    speed  = 10.;
+        public static double    speed  = 8;
 
         public static double startX = 200;
         public static double startY = 200;

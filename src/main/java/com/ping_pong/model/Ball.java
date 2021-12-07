@@ -1,35 +1,36 @@
 package com.ping_pong.model;
 
 
-import com.ping_pong.utils.Vector2D;
+import com.jgame.Sprite;
+import com.jgame.structs.*;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 
-public class Ball extends Sprite implements Runnable {
-    public Ball(Pane layout) {
-        super(layout, new Vector2D(Settings.Ball.startX, Settings.Ball.startY),
-                Vector2D.getVelocityByAngle(
-                (Math.random() * 90) + 180 + 45,
-                      Settings.Ball.speed
-                ), Vector2D.zero(),
-                Settings.Ball.width, Settings.Ball.height, Settings.Ball.speed);
+public class Ball extends Sprite {
+    private final double REFLECT_MAX_RAND_DEGREE = 15;
 
-        setBoundary(
-                new Vector2D(15, -50),
-                new Vector2D(470 - radius - 15, 450)
+    public Ball(Pane layout) {
+        super(layout, Settings.Ball.startX, Settings.Ball.startY, Settings.Ball.speed, Settings.Ball.radius, Settings.Ball.radius);
+        startLocation = new Location(0, 0);
+        location.setLeftTopCorner(
+                new Location(15, -45)
+        );
+        location.setRightBottomCorner(
+                new Location(470 - getSize().getRadius() - 15, 460)
         );
     }
 
     @Override
     protected Node createView() {
         if (view == null) {
+            Location center = size.getCenter();
             Circle circle = new Circle(
-                    centerX,
-                    centerY,
-                    radius,
+                    center.getX(),
+                    center.getY(),
+                    size.getRadius(),
                     Color.ORANGE
             );
             circle.setStroke(Color.GRAY);
@@ -38,35 +39,38 @@ public class Ball extends Sprite implements Runnable {
     }
 
     @Override
-    protected void runtime() {
-        move();
-        limit();
+    public void respawn() {
+        super.respawn();
+        velocity = new Velocity(Angle.fromDegree(Math.random() * 360), velocity.getMaxSpeed());
     }
 
     @Override
-    protected void limit() {
-        if (location.getX() < leftTopCorner.getX() || location.getX() > rightBottomCorner.getX() ) {
-            verticalReflect();
-        }
+    protected void runtime() {
+        reflectFromWalls();
+        move();
     }
 
-    public void horizontalReflect() {
-        stop();
-        velocity = new Vector2D(velocity.getX(), -velocity.getY());
-        double ang = velocity.heading2D() * 180 / Math.PI;
-        velocity = Vector2D.getVelocityByAngle(
-                ang + (Math.random() - .5) * 25,
-                velocity.magnitude()
-        );
-        start();
+    protected void reflectFromWalls() {
+        if (location.getX() <= location.getLeftTopCorner().getX() || location.getX() >= location.getRightBottomCorner().getX()) {
+            verticalReflect();
+        }
+//        if (location.getY() <= location.getLeftTopCorner().getY() || location.getY() >= location.getRightBottomCorner().getY()) {
+//            horizontalReflect();
+//        }
     }
 
     public void verticalReflect() {
-        velocity = new Vector2D(-velocity.getX(), velocity.getY());
+        velocity.setX(-velocity.getX());
+        location.add(velocity);
     }
 
-    @Override
-    public String toString() {
-        return "Ball" + super.toString().split("Sprite")[1];
+    public void horizontalReflect() {
+        velocity.setY(-velocity.getY());
+//        System.out.println(velocity);
+        Angle angle = velocity.getAngle();
+        angle.rotateToDegree(
+                (Math.random() - .5) * 2 * REFLECT_MAX_RAND_DEGREE
+        );
+        velocity = new Velocity(angle, velocity.getMaxSpeed());
     }
 }

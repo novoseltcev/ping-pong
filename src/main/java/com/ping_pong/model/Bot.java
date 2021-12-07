@@ -1,6 +1,6 @@
 package com.ping_pong.model;
 
-import com.ping_pong.utils.Vector2D;
+import com.jgame.structs.*;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -9,7 +9,7 @@ import static java.lang.Thread.sleep;
 import static javafx.scene.paint.Color.RED;
 
 
-public class Bot extends Stick {
+public class Bot extends Entity {
     public Bot(Pane layer, Ball ball) {
         super(layer, ball);
     }
@@ -30,28 +30,28 @@ public class Bot extends Stick {
         }
         move();
         brake();
-        limit();
     }
 
     private void brain() {
-        Vector2D diff = getDiff(this.ball);
-        if (diff.getY() < Settings.Stage.height / 4.) {
-            if (diff.getX() > width) {
-                acceleration = Vector2D.getVelocityByAngle(0, Settings.User.speed);
+        Direction direction = location.getDirectionTo(this.ball.getLocation());
+        if (direction.getY() < Settings.Stage.height / 4.5) {
+            if (direction.getX() > size.getHeight()) {
+                acceleration = new Acceleration(Angle.fromDegree(0), Settings.Entity.speed);
             }
-            if (diff.getX() < 0){
-                acceleration = Vector2D.getVelocityByAngle(180, Settings.User.speed);
+            if (direction.getX() < 0){
+                acceleration = new Acceleration(Angle.fromDegree(180), Settings.Entity.speed);
             }
         }
     }
 
     protected void checkRespawn() throws InterruptedException {
-        Vector2D diff = getDiff(this.ball);
-        if (diff.getY() <= 0) {
-            if (diff.getX() > 0 - ball.radius && diff.getX() < width + ball.radius) {
-                ball.location.sub(new Vector2D(0, diff.getY()));
-                ball.location.add(new Vector2D(0, ball.radius));
-
+        Direction direction = location.getDirectionTo(this.ball.getLocation());
+        if (direction.getY() <= 0) {
+            double ballRadius = ball.getSize().getRadius();
+            if (direction.getX() >= -ballRadius && direction.getX() <= size.getWidth() + ballRadius) {
+                System.out.println(direction);
+                ball.getLocation().sub(new Location(0, direction.getY()));
+                ball.getLocation().add(new Location(0, size.getHeight()));
                 ball.horizontalReflect();
             } else {
                 incrementScore();
@@ -61,17 +61,22 @@ public class Bot extends Stick {
     }
 
     protected void respawnBall() throws InterruptedException {
-        ball.stop();
-        Vector2D newLoc = ball.goTo(this);
-        newLoc.add(new Vector2D(0, height / 2 + ball.radius));
-        ball.location = newLoc;
+        ball.deactivate();
+
+        Location ballLocation = ball.getLocation();
+        ballLocation.sub(location.getDirectionTo(ballLocation));
+        ballLocation.sub(new Location(-size.getCenter().getX(), size.getCenter().getY() + ball.getSize().getRadius()));
 
         sleep(1000);
-        ball.velocity = Vector2D.getVelocityByAngle(
-                (Math.random() * 90) + 45,
-                (int) ball.maxSpeed
+        Velocity tmpVelocity = new Velocity(
+                Angle.fromDegree(
+                        (Math.random() * 90) + 45
+                ), ball.getVelocity().getMaxSpeed()
         );
-        ball.start();
+        Velocity ballVelocity = ball.getVelocity();
+        ballVelocity.setX(tmpVelocity.getX());
+        ballVelocity.setY(tmpVelocity.getY());
+        ball.activate();
     }
 
 

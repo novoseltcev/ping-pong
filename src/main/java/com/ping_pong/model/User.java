@@ -1,6 +1,6 @@
 package com.ping_pong.model;
 
-import com.ping_pong.utils.Vector2D;
+import com.jgame.structs.*;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -10,11 +10,10 @@ import javafx.scene.shape.Rectangle;
 import static javafx.scene.paint.Color.GREEN;
 
 
-public class User extends Stick {
+public class User extends Entity {
     public KeyCode enteredKey;
     public User(Pane layer, Ball ball) {
         super(layer, ball);
-        setHandlers();
     }
 
     private void setHandlers() {
@@ -22,16 +21,16 @@ public class User extends Stick {
         scene.setOnKeyPressed(event -> {
             enteredKey = event.getCode();
             switch (enteredKey) {
-                case A, LEFT -> velocity = Vector2D.getVelocityByAngle(180, Settings.User.speed);
-                case D, RIGHT -> velocity = Vector2D.getVelocityByAngle(0, Settings.User.speed);
+                case A, LEFT  -> acceleration = new Acceleration(Angle.fromDegree(180), Settings.Entity.speed);
+                case D, RIGHT -> acceleration = new Acceleration(Angle.fromDegree(0), Settings.Entity.speed);
             }
         });
 
-        scene.setOnKeyReleased(event -> {
-            switch (event.getCode()) {
-                case A, LEFT, D, RIGHT -> brake();
-            }
-        });
+//        scene.setOnKeyReleased(event -> {
+//            switch (event.getCode()) {
+//                case A, LEFT, D, RIGHT -> brake();
+//            }
+//        });
     }
 
     @Override
@@ -42,11 +41,12 @@ public class User extends Stick {
     }
 
     protected void checkRespawn() throws InterruptedException {
-        Vector2D diff = getDiff(this.ball);
-        if (diff.getY() >= 0) {
-            if (diff.getX() > 0 - ball.radius && diff.getX() < width + ball.radius) {
-                ball.location.sub(new Vector2D(0, diff.getY()));
-                ball.location.sub(new Vector2D(0, ball.radius));
+        Direction direction = location.getDirectionTo(this.ball.getLocation());
+        if (direction.getY() >= 0) {
+            double ballRadius = ball.getSize().getRadius();
+            if (direction.getX() >= -ballRadius && direction.getX() <= size.getWidth() + ballRadius) {
+                ball.getLocation().sub(new Location(0, direction.getY()));
+                ball.getLocation().sub(new Location(0, ballRadius));
                 ball.horizontalReflect();
             } else {
                 incrementScore();
@@ -56,24 +56,28 @@ public class User extends Stick {
     }
 
     protected void respawnBall() throws InterruptedException {
-        ball.stop();
+        ball.deactivate();
         enteredKey = KeyCode.S;
         while (enteredKey != KeyCode.ENTER && enteredKey != KeyCode.SPACE) {
             long startTine = System.nanoTime();
-            Vector2D newLoc = ball.goTo(this);
-            newLoc.sub(new Vector2D(0, height / 2 + ball.radius));
-            ball.location = newLoc;
+
+            Location ballLocation = ball.getLocation();
+            ballLocation.sub(location.getDirectionTo(ballLocation));
+            ballLocation.sub(new Location(-size.getCenter().getX() / 2, size.getCenter().getY() + ball.getSize().getRadius()));
             move();
-//            brake();
-            limit();
+            brake();
             delay( (int) (System.nanoTime() - startTine));
         }
 
-        ball.velocity = Vector2D.getVelocityByAngle(
-                (Math.random() * 90) + 45 + 180,
-                (int) ball.maxSpeed
+        Velocity tmpVelocity = new Velocity(
+                Angle.fromDegree(
+                        (Math.random() * 90) + 45 + 180
+                ), ball.getVelocity().getMaxSpeed()
         );
-        ball.start();
+        Velocity ballVelocity = ball.getVelocity();
+        ballVelocity.setX(tmpVelocity.getX());
+        ballVelocity.setY(tmpVelocity.getY());
+        ball.activate();
     }
 
     @Override
@@ -83,7 +87,12 @@ public class User extends Stick {
             respawnBall();
         }
         move();
-//        brake();
-        limit();
+        brake();
+    }
+
+    @Override
+    public void run() {
+        setHandlers();
+        super.run();
     }
 }
